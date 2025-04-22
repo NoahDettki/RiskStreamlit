@@ -21,14 +21,14 @@ with st.expander("Ausgangssituation", expanded=st.session_state.initialized == F
             "Gesamtzahl Einheiten im Territorium des :red[Angreifers]",
             min_value=2,
             max_value=100,
-            value=2,
+            value=4,
             step=1
         )
         defend_units = st.number_input(
             "Gesamtzahl Einheiten im Territorium des :blue[Verteidigers]",
             min_value=1,
             max_value=100,
-            value=4,
+            value=1,
             step=1
         )
         submitted = st.form_submit_button("Kampf starten!", type="primary")
