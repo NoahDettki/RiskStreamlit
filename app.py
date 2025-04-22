@@ -1,9 +1,8 @@
 import streamlit as st
 import random
 
-TEXT_TITLE = "Risiko Kampfbeschleuniger"
-st.set_page_config(TEXT_TITLE, page_icon=":guardsman:")
-st.title(TEXT_TITLE)
+st.set_page_config("Risiko", page_icon=":game_die:")
+st.title("Risiko :game_die:")
 
 def reset():
     st.session_state.initialized = False
