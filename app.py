@@ -10,6 +10,44 @@ def reset():
     st.session_state.defend_units = 1
     st.session_state.log = []
 
+def throw_dice(attackers: int):
+    st.session_state.min_move = attackers
+    attack_dice = sorted(random.sample(range(1, 7), attackers), reverse=True)
+    defend_dice = sorted(random.sample(range(1, 7), 2 if st.session_state.defend_units > 1 else 1), reverse=True)
+    compare_limit = min(len(attack_dice), len(defend_dice))
+    attacker_lost = 0
+    defender_lost = 0
+    log_text = "**A["
+    # Display defender dice (excess dice are greyed out)
+    for i in range(len(attack_dice)):
+        if i < compare_limit:
+            if attack_dice[i] > defend_dice[i]:
+                st.session_state.defend_units -= 1
+                defender_lost += 1
+            else:
+                st.session_state.attack_units -= 1
+                attacker_lost += 1
+            log_text += f":red[{attack_dice[i]}]"
+        else:
+            log_text += f":grey[{attack_dice[i]}]"
+        if i < len(attack_dice) - 1:
+            log_text += ","
+    log_text += "] <-> D["
+    for i in range(len(defend_dice)):
+        if i < compare_limit:
+            log_text += f":blue[{defend_dice[i]}]"
+        else:
+            log_text += f":grey[{defend_dice[i]}]"
+        if i < len(defend_dice) - 1:
+            log_text += ","
+    log_text += "] "
+    for i in range(attacker_lost):
+        log_text += f":red[-]"
+    for i in range(defender_lost):
+        log_text += f":blue[-]"
+    log_text += "**"
+    st.session_state.log.append(log_text)
+
 if "initialized" not in st.session_state:
     st.session_state.initialized = False
 
@@ -58,42 +96,11 @@ if st.session_state.initialized:
             step=1,
             disabled=max_attack_units < 2)
         if st.button("Angriff!", type="primary"):
-            st.session_state.min_move = attack_with
-            attack_dice = sorted(random.sample(range(1, 7), attack_with), reverse=True)
-            defend_dice = sorted(random.sample(range(1, 7), 2 if st.session_state.defend_units > 1 else 1), reverse=True)
-            compare_limit = min(len(attack_dice), len(defend_dice))
-            attacker_lost = 0
-            defender_lost = 0
-            log_text = "**A["
-            # Display defender dice (excess dice are greyed out)
-            for i in range(len(attack_dice)):
-                if i < compare_limit:
-                    if attack_dice[i] > defend_dice[i]:
-                        st.session_state.defend_units -= 1
-                        defender_lost += 1
-                    else:
-                        st.session_state.attack_units -= 1
-                        attacker_lost += 1
-                    log_text += f":red[{attack_dice[i]}]"
-                else:
-                    log_text += f":grey[{attack_dice[i]}]"
-                if i < len(attack_dice) - 1:
-                    log_text += ","
-            log_text += "] <-> D["
-            for i in range(len(defend_dice)):
-                if i < compare_limit:
-                    log_text += f":blue[{defend_dice[i]}]"
-                else:
-                    log_text += f":grey[{defend_dice[i]}]"
-                if i < len(defend_dice) - 1:
-                    log_text += ","
-            log_text += "] "
-            for i in range(attacker_lost):
-                log_text += f":red[-]"
-            for i in range(defender_lost):
-                log_text += f":blue[-]"
-            log_text += "**"
-            st.session_state.log.append(log_text)
+            throw_dice(attack_with)
+            st.rerun()
+        if st.button("Alles oder nichts!", help="Kämpfe bis eine Seite alle Einheiten verloren hat. Es werden die maximal möglichen Einheiten für Angriff und Verteidigung eingesetzt."):
+            while(st.session_state.attack_units > 1 and st.session_state.defend_units > 0):
+                throw_dice(min(3, st.session_state.attack_units-1))
             st.rerun()
     for log in reversed(st.session_state.log):
         st.markdown(log)
