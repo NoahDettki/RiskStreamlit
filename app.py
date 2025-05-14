@@ -32,7 +32,7 @@ def throw_dice(attackers: int):
             log_text += f":grey[{attack_dice[i]}]"
         if i < len(attack_dice) - 1:
             log_text += ","
-    log_text += "] <-> D["
+    log_text += "] <-> V["
     for i in range(len(defend_dice)):
         if i < compare_limit:
             log_text += f":blue[{defend_dice[i]}]"
